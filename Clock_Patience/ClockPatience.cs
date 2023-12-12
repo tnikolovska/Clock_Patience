@@ -8,55 +8,45 @@ namespace Clock_Patience
 {
     internal class ClockPatience
     {
-        static Tuple<int, string> PlayClockPatience(List<string> deck)
+         static void Main(string[] args)
         {
-            List<string>[] piles = new List<string>[14];
-            for (int i = 0; i < 14; i++)
+            string input;
+            while ((input = Console.ReadLine()) != "#")
             {
-                piles[i] = new List<string>();
+                string[] deck = input.Split();
+                Console.WriteLine(PlayClockPatience(deck));
             }
-
-            foreach (var card in deck)
-            {
-                string rank = card.Substring(0, card.Length - 1);
-                piles[int.Parse(rank)].Add(card);
-            }
-
-            string currentCard = piles[13][piles[13].Count - 1];
-            piles[13].RemoveAt(piles[13].Count - 1);
-            int exposedCount = 1;
-
-            while (piles[int.Parse(currentCard.Substring(0, currentCard.Length - 1))].Count > 0)
-            {
-                exposedCount++;
-                currentCard = piles[int.Parse(currentCard.Substring(0, currentCard.Length - 1))][piles[int.Parse(currentCard.Substring(0, currentCard.Length - 1))].Count - 1];
-                piles[int.Parse(currentCard.Substring(0, currentCard.Length - 1))].RemoveAt(piles[int.Parse(currentCard.Substring(0, currentCard.Length - 1))].Count - 1);
-            }
-
-            return Tuple.Create(exposedCount, currentCard);
         }
 
-        static void Main()
+        static string PlayClockPatience(string[] deck)
         {
-            List<List<string>> decks = new List<List<string>>();
-            string line;
+            List<Stack<string>> piles = new List<Stack<string>>();
+            for (int i = 0; i < 13; i++)
+            {
+                piles.Add(new Stack<string>());
+            }
+
+            for (int i = 0; i < 52; i++)
+            {
+                piles[i % 13].Push(deck[i]);
+            }
+
+            string currentCard = piles[12].Peek();
+            int exposedCards = 1;
 
             while (true)
             {
-                line = Console.ReadLine().Trim();
-                if (line == "#")
+                int pileIndex = (currentCard[0] - 'A' + 1) % 13;
+                if (piles[pileIndex].Count == 0)
                 {
                     break;
                 }
 
-                decks.Add(new List<string>(line.Split()));
+                currentCard = piles[pileIndex].Pop();
+                exposedCards++;
             }
 
-            foreach (var deck in decks)
-            {
-                var result = PlayClockPatience(deck);
-                Console.WriteLine($"{result.Item1:D2},{result.Item2}");
-            }
+            return $"{exposedCards:00}, {currentCard}";
         }
     }
 
